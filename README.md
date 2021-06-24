@@ -4,8 +4,7 @@ Objective: Integrate GitHub with a Django application via the GitHub REST API.
 
 Environment setup:
 
-Register an oAuth application from your Github account
-Create a dummy repository on your Github profile for this assignment - We’ll get to what you should do with this later.
+Register an oauth application from your Github account
 Use:
   1. Django
   2. PostgreSQL

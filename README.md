@@ -1,4 +1,4 @@
-Technologies: Python, Django, REST APIs, GitHub.
+Technologies: Python, Django, Vue, REST APIs, GitHub, Webhooks.
 
 Objective: Integrate GitHub with a Django and Vue application via the GitHub and Google REST API.
 
@@ -31,6 +31,7 @@ On the front end:
 7. Store this selection in the db.
 
 Extras if you have time:
+
 8. When I select a repository, set up web hooks on that repository that will relay any events on the repository, specifically, pull requests merged and code pushed to an URL endpoint on the Django app.
 9. Create this URL endpoint that accepts the web hooks from my repo and store the event payload in the db.
 10. Show me a list of all the webhook events received from my repo on the front end.

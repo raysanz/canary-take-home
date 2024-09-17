@@ -33,7 +33,7 @@ On the front end:
 On the back-end:
 1. You should have DRF views for proxying the requests from your front-end application to the Google OAuth API, as well as GitHub API.
 2. Subscribe to webhook events for each repository found. Specifically we'd like to subscribe to: pull requests, merges, and code pushes.
-3. Create a view / endpoint to receive / parse webhook events, but do not actually implement the processing of these events. We are only looking for an endpoint that will receive these events, no action(s) needs to be taken once received.
+3. Create a view / endpoint to receive / parse webhook events, but do not actually implement the processing of these events. We are only looking for an endpoint that will receive these events, no action needs to be taken once received.
 
 You are free to integrate directly with the API or use any of the Google/Github python wrappers available. You can also use an OAuth provider plugin for the backend if you want to Oauth to the django application. Though, these decisions are up to you. 
 

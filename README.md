@@ -23,18 +23,17 @@ Specifications - Start with the first and progress downwards. It should work out
 
 On the front end:
 
-1. I should be able to register as a user using Google oauth and login to the application (don't worry too much about token auth, cookies, or state persistence for the login state). 
+1. I should be able to register as a user using Google OAuth and login to the application (don't worry too much about token auth, cookies, or state persistence for the login state). 
 3. After logging in, I should see a Link GitHub account button.
-    1. On clicking this, I should be asked to authorize your app to access my Github account. If you've never done this, it's a page hosted by GH, you don't need to build anything for the oauth.
-5. Persist the logged in users Github oAuth credentials in the db.
+    1. On clicking this, I should be asked to authorize your app to access my Github account. If you've never done this, it's a page hosted by GH, you don't need to build anything for the OAuth.
+5. Persist the logged in users Github OAuth credentials in the db.
 6. After I authorize, I should be provided with a list of my public repositories on Github and given an option to select one.
 7. Store this selection in the db.
 
-Extras if you have time:
-
-8. When I select a repository, set up web hooks on that repository that will relay any events on the repository, specifically, pull requests merged and code pushed to an URL endpoint on the Django app.
-9. Create this URL endpoint that accepts the web hooks from my repo and store the event payload in the db.
-10. Show me a list of all the webhook events received from my repo on the front end.
+On the back-end:
+1. You should have DRF views for proxying the requests from your front-end application to the Google OAuth API, as well as GitHub API.
+2. Subscribe to webhook events for each repository found. Specifically we'd like to subscribe to: pull requests, merges, and code pushes.
+3. Create a view / endpoint to receive / parse webhook events, but do not actually implement the processing of these events. We are only looking for an endpoint that will receive these events, no action(s) needs to be taken once received.
 
 You are free to integrate directly with the API or use any of the Google/Github python wrappers available. You can also use an OAuth provider plugin for the backend if you want to Oauth to the django application. Though, these decisions are up to you. 
 

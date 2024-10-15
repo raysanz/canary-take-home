@@ -1,18 +1,17 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Python: Django",
-        "type": "python",
-        "request": "launch",
-        "program": "${workspaceFolder}/rudy_canary/manage.py",
-        "args": [
-          "runserver",
-          "--noreload"
-        ],
-        "django": true,
-        "justMyCode": true
-      }
-    ]
-  }
-  
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Django",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/rudy_canary/manage.py", 
+      "args": [
+        "runserver",
+        "--noreload"
+      ],
+      "django": true,
+      "justMyCode": false
+    }
+  ]
+}

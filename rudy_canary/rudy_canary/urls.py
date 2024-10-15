@@ -16,18 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rudy_canary.views import github_webhook 
 from rest_framework.routers import DefaultRouter
 from .views import GitHubTokenViewSet, RepositoryViewSet
 
 router = DefaultRouter()
-router.register(r'github_tokens', GitHubTokenViewSet)
-router.register(r'repositories', RepositoryViewSet)
+router.register(r'github_tokens', GitHubTokenViewSet, basename='githubtoken')
+router.register(r'repositories', RepositoryViewSet, basename='repository')
 
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
-    # path('oauth/', include('social_django.urls', namespace='social')),
-    # path('accounts/', include('allauth.urls')),
     path('api/', include(router.urls)),
-
+    path('github/webhook/', github_webhook, name='github_webhook'),
 ]

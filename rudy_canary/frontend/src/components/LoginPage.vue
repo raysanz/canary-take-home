@@ -1,8 +1,11 @@
+<!-- Login.vue -->
 <template>
   <div>
-    <button @click="loginWithGoogle">Log-in with Google</button>
-    <button v-if="githubLinked" @click="linkGitHub">Link GitHub Account</button>
-    <div v-if="repos.length > 0">
+    <button @click="loginWithGoogle">Login with Google</button>
+    <p v-if="loggedIn">Welcome, {{ user.name }}!</p>
+
+    <div v-if="repos">
+      <h3>Your GitHub Repositories:</h3>
       <ul>
         <li v-for="repo in repos" :key="repo.id">{{ repo.name }}</li>
       </ul>
@@ -11,42 +14,55 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { useGoogleOauth } from 'vue3-google-oauth2'
+import axios from 'axios';
 
 export default {
-  name: 'LoginPage',
   data() {
     return {
-      githubLinked: true,
-      repos: []
+      user: null,
+      loggedIn: false,
+    };
+  },
+  mounted() {
+    const queryParams = new URLSearchParams(window.location.search);
+    const code = queryParams.get('code');
+
+    if (code) {
+      this.exchangeCodeForToken(code);
     }
   },
   methods: {
-  setup() {
-    const { login } = useGoogleOauth({
-      clientId: '592389886839-13s600e9duul3rc5pvq6oalpi33aeuf4.apps.googleusercontent.com',
-    });
-
-    const loginWithGoogle = () => {
-      // eslint-disable-next-line
-      login().then(googleUser => {
-        console.log('Logged in with Google:', googleUser);
-      }).catch(error => {
-        console.error('Google login error:', error);
-      });
-    };
-
-    return { loginWithGoogle };
-  },
-    linkGitHub() {
-      window.location.href = 'https://github.com/login/oauth/authorize?client_id=Ov23liu3cPIqQFF4pCRd'
+    loginWithGoogle() {
+      const googleOAuthURL = 'https://accounts.google.com/o/oauth2/auth';
+      const redirectUri = 'http://localhost:8000/github/repos';  
+      const scope = 'profile email';
+      const responseType = 'code';
+      
+      // Redirect the user to Google's OAuth page
+      const url = `${googleOAuthURL}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${responseType}`;
+      window.location.href = url;
     },
-    fetchRepos() {
-      axios.get('/api/repositories/')
-        .then(response => {
-          this.repos = response.data
-        })
+    async exchangeCodeForToken(code) {
+      try {
+        const response = await axios.post('http://localhost:8000/api/auth/social/google/', {
+          code: code,
+          redirect_uri: 'http://localhost:8000/api/auth/google/callback/',
+        });
+
+        // On success, store user data and mark as logged in
+        this.user = response.data.user;
+        this.loggedIn = true;
+      } catch (error) {
+        console.error('OAuth login failed', error);
+      }
+    },
+    async fetchRepos() {
+      try {
+        const response = await axios.get('http://localhost:8000/github/repos');
+        this.repos = response.data;
+      } catch (error) {
+        console.error('Failed to fetch GitHub repos', error);
+      }
     }
   }
 }

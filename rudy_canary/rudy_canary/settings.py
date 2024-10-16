@@ -77,6 +77,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
+
+    
 ]
 
 ROOT_URLCONF = 'rudy_canary.urls'
@@ -94,6 +97,14 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',  # For social auth
                 'social_django.context_processors.login_redirect',  # For social auth redirects
+                'django.contrib.sites',  # Required by allauth / new 
+                'allauth',
+                'allauth.account',
+                'allauth.socialaccount',
+                'allauth.socialaccount.providers.google',  # Google OAuth provider
+                'dj_rest_auth',
+                'dj_rest_auth.registration',
+                
             ],
         },
     },
@@ -124,14 +135,15 @@ LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = '/login'
 LOGOUT_REDIRECT_URL = '/'
 
+# Google OAuth settings
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'APP': {
+            'client_id': os.getenv('GOOGLE_OAUTH_KEY'),
+            'secret': os.getenv('GITHUB_CLIENT_ID'),
+            'key': ''
         }
     }
 }

@@ -139,3 +139,47 @@ def fetch_github_repos(request):
     #     return JsonResponse(repos, safe=False)
     # else:
     #     return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)
+
+def github_oauth_callback(request):
+    # Step 1: Extract the token from the OAuth response (assuming GitHub gives you this)
+    github_token = request.GET.get('code')  # Adjust if you get it in a POST request instead
+
+    # Step 2: Check if the user is authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+
+    # Step 3: Save the GitHub token for the authenticated user
+    github_token_obj, created = GitHubToken.objects.get_or_create(user=request.user)
+    github_token_obj.github_token = github_token  # Save the OAuth token
+    github_token_obj.save()
+
+    # Optional: Redirect the user to a page after saving the token, e.g., the GitHub repos page
+    return redirect('github_repos')
+
+@login_required
+def github_repos_view(request):
+    # Ensure the user is authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated'}, status=401)
+    
+    # Get the user's GitHub token
+    try:
+        github_token = GitHubToken.objects.get(user=request.user).github_token
+    except GitHubToken.DoesNotExist:
+        return JsonResponse({'error': 'GitHub token not found'}, status=400)
+
+    # Prepare the API request to GitHub
+    headers = {
+        'Authorization': f'token {github_token}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+
+    # GitHub API endpoint to get the list of repositories
+    api_url = "https://api.github.com/user/repos"
+    response = requests.get(api_url, headers=headers)
+
+    if response.status_code == 200:
+        repos = response.json()  # GitHub returns a list of repositories in JSON format
+        return JsonResponse(repos, safe=False)
+    else:
+        return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)

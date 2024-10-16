@@ -36,7 +36,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         repo_name = request.data.get('repo_name')
         github_token = GitHubToken.objects.filter(user=request.user).first().access_token
 
-        webhook_url = 'https://9933-47-155-147-98.ngrok-free.app/webhooks/github/'  # URL for receiving webhooks
+        webhook_url = 'https://7424-47-155-147-98.ngrok-free.app /webhooks/github/'  # URL for receiving webhooks
         headers = {
             'Authorization': f'token {github_token}',
             'Accept': 'application/vnd.github.v3+json'
@@ -84,38 +84,58 @@ def github_webhook(request):
 # Example of adding authentication to a view
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-@login_required  # Ensure the user is logged in
+# @login_required  # Ensure the user is logged in
 def fetch_github_repos(request):
     client_id = settings.GITHUB_CLIENT_ID
     client_secret = settings.GITHUB_CLIENT_SECRET
     
-    github_user = request.user.username
-    url = f"https://api.github.com/users/{github_user}/repos?client_id={client_id}&client_secret={client_secret}"
-    response = requests.get(url)
-    return JsonResponse(response.json(), safe=False)
-    if not request.user.is_authenticated:
-        print("User not authenticated:", request.user)
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
-
-    # Get the user's GitHub access token from the GitHubToken model
+    github_user =  'raysanz'
+        # Check if the user has a GitHub token
     try:
-        github_token = GitHubToken.objects.get(user=request.user).github_token
-        # GitHubToken.objects.get(user=request.user).github_token
+        github_token = settings.SOCIAL_AUTH_GITHUB_TOKEN
     except GitHubToken.DoesNotExist:
         return JsonResponse({'error': 'GitHub token not found'}, status=400)
 
+    # Prepare the API request to GitHub
     headers = {
         'Authorization': f'token {github_token}',
         'Accept': 'application/vnd.github.v3+json'
     }
 
-    # GitHub API endpoint to get the list of repositories for the authenticated user
     api_url = "https://api.github.com/user/repos"
-    
     response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
-        repos = response.json()  # GitHub will return a list of repositories in JSON format
+        repos = response.json()
         return JsonResponse(repos, safe=False)
     else:
         return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)
+    # url = f"https://api.github.com/users/{github_user}/repos?client_id={client_id}&client_secret={client_secret}"
+    # response = requests.get(url)
+    # return JsonResponse(response.json(), safe=False)
+    # if not request.user.is_authenticated:
+    #     print("User not authenticated:", request.user)
+    #     return JsonResponse({'error': 'User not authenticated'}, status=401)
+
+    # # Get the user's GitHub access token from the GitHubToken model
+    # try:
+    #     github_token = GitHubToken.objects.get(user=request.user).github_token
+    #     # GitHubToken.objects.get(user=request.user).github_token
+    # except GitHubToken.DoesNotExist:
+    #     return JsonResponse({'error': 'GitHub token not found'}, status=400)
+
+    # headers = {
+    #     'Authorization': f'token {github_token}',
+    #     'Accept': 'application/vnd.github.v3+json'
+    # }
+
+    # # GitHub API endpoint to get the list of repositories for the authenticated user
+    # api_url = "https://api.github.com/user/repos"
+    
+    # response = requests.get(api_url, headers=headers)
+
+    # if response.status_code == 200:
+    #     repos = response.json()  # GitHub will return a list of repositories in JSON format
+    #     return JsonResponse(repos, safe=False)
+    # else:
+    #     return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)

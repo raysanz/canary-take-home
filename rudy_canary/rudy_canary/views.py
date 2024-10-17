@@ -76,8 +76,10 @@ def github_oauth_callback(request):
     # Exchange the code for an access token with GitHub
     response = requests.post('https://github.com/login/oauth/access_token', data={
         'client_id': settings.SOCIAL_AUTH_GITHUB_KEY,
-        'client_secret': settings.SOCIAL_AUTH_GITHUB_KEY,
+        'client_secret': settings.SOCIAL_AUTH_GITHUB_SECRET,
         'code': code,
+        'redirect_uri': 'http://localhost:8000/github/callback/'
+
     }, headers={'Accept': 'application/json'})
 
     token_response = response.json()

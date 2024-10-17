@@ -12,6 +12,8 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 import requests
+from django.shortcuts import redirect
+from django.contrib.auth import login
 import json
 
 class GitHubTokenViewSet(viewsets.ModelViewSet):
@@ -141,22 +143,36 @@ def fetch_github_repos(request):
     #     return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)
 
 def github_oauth_callback(request):
-    # Step 1: Extract the token from the OAuth response (assuming GitHub gives you this)
-    github_token = request.GET.get('code')  # Adjust if you get it in a POST request instead
+    # Process the GitHub OAuth response and obtain the token
+    code = request.GET.get('code')
+    if not code:
+        return JsonResponse({'error': 'No code provided'}, status=400)
 
-    # Step 2: Check if the user is authenticated
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'User not authenticated'}, status=401)
+    # Exchange the code for an access token with GitHub
+    response = requests.post('https://github.com/login/oauth/access_token', data={
+        'client_id': 'your-client-id',
+        'client_secret': 'your-client-secret',
+        'code': code,
+    }, headers={'Accept': 'application/json'})
 
-    # Step 3: Save the GitHub token for the authenticated user
-    github_token_obj, created = GitHubToken.objects.get_or_create(user=request.user)
-    github_token_obj.github_token = github_token  # Save the OAuth token
-    github_token_obj.save()
+    token_response = response.json()
+    access_token = token_response.get('access_token')
 
-    # Optional: Redirect the user to a page after saving the token, e.g., the GitHub repos page
-    return redirect('github_repos')
+    if access_token:
+        # Save the token in the GitHubToken model
+        github_token, created = GitHubToken.objects.get_or_create(user=request.user)
+        github_token.github_token = access_token
+        github_token.save()
 
-@login_required
+        # Log the user in (if needed)
+        login(request, request.user)
+
+        # Redirect to the repos view
+        return redirect('github_repos')
+    else:
+        return JsonResponse({'error': 'Failed to obtain access token'}, status=400)
+
+# @login_required
 def github_repos_view(request):
     # Ensure the user is authenticated
     if not request.user.is_authenticated:

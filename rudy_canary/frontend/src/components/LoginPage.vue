@@ -34,6 +34,7 @@ export default {
   methods: {
     loginWithGoogle() {
       const googleOAuthURL = 'https://accounts.google.com/o/oauth2/auth';
+      const clientId = '592389886839-13s600e9duul3rc5pvq6oalpi33aeuf4.apps.googleusercontent.com';  // Replace with your client ID
       const redirectUri = 'http://localhost:8000/github/repos';  
       const scope = 'profile email';
       const responseType = 'code';
@@ -43,19 +44,22 @@ export default {
       window.location.href = url;
     },
     async exchangeCodeForToken(code) {
-      try {
-        const response = await axios.post('http://localhost:8000/api/auth/social/google/', {
-          code: code,
-          redirect_uri: 'http://localhost:8000/api/auth/google/callback/',
-        });
+   try {
+     const response = await axios.post('http://localhost:8000/api/auth/social/google/', {
+       code: code,
+       redirect_uri: 'http://localhost:8000/github/repos',
+     });
 
-        // On success, store user data and mark as logged in
-        this.user = response.data.user;
-        this.loggedIn = true;
-      } catch (error) {
-        console.error('OAuth login failed', error);
-      }
-    },
+     // On success, store user data and mark as logged in
+     this.user = response.data.user;
+     this.loggedIn = true;
+     
+     // Fetch GitHub repos after login
+     this.fetchRepos();
+   } catch (error) {
+     console.error('OAuth login failed', error);
+   }
+},
     async fetchRepos() {
       try {
         const response = await axios.get('http://localhost:8000/github/repos');

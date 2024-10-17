@@ -66,81 +66,6 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Failed to subscribe to webhook', 'details': response.json()})
 
 
-# GitHub webhook receiving endpoint
-@csrf_exempt
-def github_webhook(request):
-    if request.method == 'POST':
-        # Parse the GitHub webhook event payload
-        payload = json.loads(request.body.decode('utf-8'))
-        event_type = request.headers.get('X-GitHub-Event', None)
-
-        # Handle different event types
-        if event_type == 'push':
-            print("Push event received:", payload)
-        elif event_type == 'pull_request':
-            print("Pull request event received:", payload)
-
-        return JsonResponse({'status': 'Webhook received'})
-    return JsonResponse({'error': 'Invalid method'}, status=400)
-
-# Example of adding authentication to a view
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-# @login_required  # Ensure the user is logged in
-def fetch_github_repos(request):
-    client_id = settings.GITHUB_CLIENT_ID
-    client_secret = settings.GITHUB_CLIENT_SECRET
-    
-    github_user =  'raysanz'
-        # Check if the user has a GitHub token
-    try:
-        github_token = settings.SOCIAL_AUTH_GITHUB_TOKEN
-    except GitHubToken.DoesNotExist:
-        return JsonResponse({'error': 'GitHub token not found'}, status=400)
-
-    # Prepare the API request to GitHub
-    headers = {
-        'Authorization': f'token {github_token}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
-
-    api_url = "https://api.github.com/user/repos"
-    response = requests.get(api_url, headers=headers)
-
-    if response.status_code == 200:
-        repos = response.json()
-        return JsonResponse(repos, safe=False)
-    else:
-        return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)
-    # url = f"https://api.github.com/users/{github_user}/repos?client_id={client_id}&client_secret={client_secret}"
-    # response = requests.get(url)
-    # return JsonResponse(response.json(), safe=False)
-    # if not request.user.is_authenticated:
-    #     print("User not authenticated:", request.user)
-    #     return JsonResponse({'error': 'User not authenticated'}, status=401)
-
-    # # Get the user's GitHub access token from the GitHubToken model
-    # try:
-    #     github_token = GitHubToken.objects.get(user=request.user).github_token
-    #     # GitHubToken.objects.get(user=request.user).github_token
-    # except GitHubToken.DoesNotExist:
-    #     return JsonResponse({'error': 'GitHub token not found'}, status=400)
-
-    # headers = {
-    #     'Authorization': f'token {github_token}',
-    #     'Accept': 'application/vnd.github.v3+json'
-    # }
-
-    # # GitHub API endpoint to get the list of repositories for the authenticated user
-    # api_url = "https://api.github.com/user/repos"
-    
-    # response = requests.get(api_url, headers=headers)
-
-    # if response.status_code == 200:
-    #     repos = response.json()  # GitHub will return a list of repositories in JSON format
-    #     return JsonResponse(repos, safe=False)
-    # else:
-    #     return JsonResponse({'error': 'Failed to fetch repositories', 'details': response.json()}, status=response.status_code)
 
 def github_oauth_callback(request):
     # Process the GitHub OAuth response and obtain the token
@@ -150,8 +75,8 @@ def github_oauth_callback(request):
 
     # Exchange the code for an access token with GitHub
     response = requests.post('https://github.com/login/oauth/access_token', data={
-        'client_id': 'your-client-id',
-        'client_secret': 'your-client-secret',
+        'client_id': settings.SOCIAL_AUTH_GITHUB_KEY,
+        'client_secret': settings.SOCIAL_AUTH_GITHUB_KEY,
         'code': code,
     }, headers={'Accept': 'application/json'})
 

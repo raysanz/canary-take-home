@@ -35,7 +35,8 @@ export default {
     loginWithGoogle() {
       const googleOAuthURL = 'https://accounts.google.com/o/oauth2/auth';
       const clientId = '592389886839-13s600e9duul3rc5pvq6oalpi33aeuf4.apps.googleusercontent.com';  // Replace with your client ID
-      const redirectUri = 'http://localhost:8000/github/repos';  
+      // const redirectUri = 'http://localhost:8000/github/repos';  
+      const redirectUri = 'http://localhost:8000/github/callback/';  
       const scope = 'profile email';
       const responseType = 'code';
       
